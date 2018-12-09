@@ -7,11 +7,11 @@ module.exports = function(sequelize, DataType) {
 		role: {
 			type: DataType.ENUM,
 			value: ['super', 'admin'],
-			defaulValue: 'admin'
+			defaultValue: 'admin'
 		},
 		status: {
 			type: DataType.BOOLEAN,
-			defaulValue: true
+			defaultValue: true
 		}
 	})
 }
