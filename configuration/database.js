@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('finendisign', 'root', '', {
+
+module.exports = new Sequelize('finendisign', 'root', '', {
     host: 'localhost',
     dialect: 'mysql',
     pool: {

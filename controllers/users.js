@@ -1,12 +1,10 @@
 var express = require('express'),
 	crypto = require('crypto'),
-	path = require('path'),
-	jwt = require('jsonwebtoken'),
-	mailer = require('../mailer');
+	path = require('path')
 
 var sequelize = require('../configuration/database');
 
-var User = sequelize.import(__dirname + "/../models/user");
+var User = sequelize.import(__dirname + "/../models/users");
 
 var validateEmail = function(email) {
 	var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

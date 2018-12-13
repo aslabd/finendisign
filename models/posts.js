@@ -3,10 +3,11 @@ module.exports = function(sequelize, DataType) {
 		title: DataType.TEXT('tiny'),
 		thumbnail: DataType.TEXT('tiny'),
 		description: DataType.TEXT('tiny'),
+		author: DataType.INTEGER,
 		content: DataType.TEXT,
 		status: {
 			type: DataType.BOOLEAN,
-			defaultValue: true
+			defaultValue: false
 		}
 	})
 }
