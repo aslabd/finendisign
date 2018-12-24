@@ -13,6 +13,56 @@ var isEmail = function(email) {
 }
 
 function UsersControllers() {
+	this.getAll = function(req, res) {
+		User
+			.findAll({
+				attributes: [
+					'name',
+					'username',
+					'role',
+					'status'
+				]
+			})
+			.then(function(user) {
+				if (user == 0) {
+					res.json({status: {success: false, code: 404}, message: 'User tidak ditemukan!'})
+				} else {
+					res.json({status: {success: true, code: 200}, message: 'Ambil semua user berhasil!', data: user})
+				}
+			})
+			.catch(function(err) {
+				res.json({status: {success: false, code: 500}, message: 'Ambil semua user gagal!', err: err})
+			})
+	}
+
+	this.get = function(req, res) {
+		let id = req.params.id
+
+		if (id == null) {
+			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'});
+		} else {
+			User
+				.findById(id, {
+					attributes: [
+						'name',
+						'username',
+						'role',
+						'status'
+					]
+				})
+				.then(function(user) {
+					if (user == null) {
+						res.json({status: {success: false, code: 404}, message: 'User tidak ditemukan!'})
+					} else {
+						res.json({status: {success: true, code: 200}, message: 'Ambil user berhasil!', data: user})
+					}
+				})
+				.catch(function(err) {
+					res.json({status: {success: false, code: 500}, message: 'Ambil user gagal!', err: err})
+				})
+		}
+	}
+
 	this.login = function(req, res) {
 		let username = req.body.username,
 			password = req.body.password,
@@ -36,7 +86,7 @@ function UsersControllers() {
 					]
 				})
 				.then(function(user) {
-			      	if (user == null) {
+			      	if (user == 0) {
 				        res.json({status: {success: false, code: 404}, message:'User tidak ditemukan!'});
 			      	} else {
 			        	var signInTime = Math.floor(Date.now() / 1000);

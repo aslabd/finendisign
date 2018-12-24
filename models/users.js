@@ -5,8 +5,7 @@ module.exports = function(sequelize, DataType) {
 		email: DataType.STRING,
 		password: DataType.STRING,
 		role: {
-			type: DataType.ENUM,
-			value: ['super', 'admin'],
+			type: DataType.ENUM('super', 'admin'),
 			defaultValue: 'admin'
 		},
 		status: {
