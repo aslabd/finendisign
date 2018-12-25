@@ -3,18 +3,18 @@ var express = require('express'),
 	path = require('path'),
 	escape = require('escape-html')
 
-var sequelize = require('../configuration/database');
+var sequelize = require(path.join(__dirname, '/../configuration/database'));
 
-var User = sequelize.import(__dirname + "/../models/users");
-var Post = sequelize.import(__dirname + "/../models/posts");
+var User = sequelize.import(path.join(__dirname, '/../models/users'));
+var Post = sequelize.import(path.join(__dirname, '/../models/posts'));
 
 Post.belongsTo(User, {foreignKey: 'author'})
 
 function PostsControllers() {
 	this.getAll = function(req, res) {
-		let offset = req.param.offset,
-			limit = req.param.limit
-			status = req.param.status
+		let offset = req.params.offset,
+			limit = req.params.limit
+			status = req.params.status
 
 		Post
 			.findAll({
@@ -37,7 +37,7 @@ function PostsControllers() {
 	}
 
 	this.get = function(req, res) {
-		let id = req.param.id
+		let id = req.params.id
 
 		Post
 			.findById(id)
@@ -108,9 +108,10 @@ function PostsControllers() {
 								author: author,
 								content: content,
 								status: status
-							},
-							where: {
-								id: id
+							}, {
+								where: {
+									id: id
+								}
 							})
 							.then(function(post) {
 								res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: post})

@@ -8,5 +8,6 @@ module.exports = new Sequelize('finendisign', 'root', '', {
         min: 0,
         acquire: 30000,
         idle: 10000
-    }
+    },
+    operatorAliases: false
 });

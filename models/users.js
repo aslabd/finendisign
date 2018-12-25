@@ -1,9 +1,23 @@
 module.exports = function(sequelize, DataType) {
 	return sequelize.define('user', {
-		name: DataType.STRING,
-		username: DataType.STRING,
-		email: DataType.STRING,
-		password: DataType.STRING,
+		name: {
+			type: DataType.STRING,
+			allowNull: false
+		},
+		username: {
+			type: DataType.STRING,
+			allowNull: false,
+			unique: true
+		},
+		email: {
+			type: DataType.STRING,
+			allowNull: false,
+			unique: true
+		},
+		password: {
+			type: DataType.TEXT,
+			allowNull: false
+		},
 		role: {
 			type: DataType.ENUM('super', 'admin'),
 			defaultValue: 'admin'
@@ -12,5 +26,9 @@ module.exports = function(sequelize, DataType) {
 			type: DataType.BOOLEAN,
 			defaultValue: true
 		}
+	}, {
+		paranoid: true,
+		timestamps: true,
+		version: true
 	})
 }

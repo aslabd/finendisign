@@ -2,10 +2,10 @@ var express = require('express'),
 	crypto = require('crypto'),
 	path = require('path')
 
-var sequelize = require('../configuration/database');
+var sequelize = require(path.join(__dirname, '/../configuration/database'));
 var Op = sequelize.Op
 
-var User = sequelize.import(__dirname + "/../models/users");
+var User = sequelize.import(path.join(__dirname + '/../models/users'));
 
 var isEmail = function(email) {
 	var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
