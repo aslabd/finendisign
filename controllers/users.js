@@ -1,6 +1,8 @@
-var express = require('express'),
-	crypto = require('crypto'),
-	path = require('path')
+var crypto = require('crypto'),
+	path = require('path'),
+	jwt = require('jsonwebtoken')
+
+var common = require(path.join(__dirname, '/../configuration/common'))
 
 var sequelize = require(path.join(__dirname, '/../configuration/database'));
 var Op = sequelize.Op
@@ -104,7 +106,7 @@ function UsersControllers() {
 			        		exp: expireTime
 			        	};
 
-			        	var token = jwt.sign(data, "YOUR_KEY_HERE");
+			        	var token = jwt.sign(data, common.jwt.key);
 			        	res.json({status: {success: true, code: 200}, message: 'Login berhasil!', token: token});
 			      	}
 		    	})
