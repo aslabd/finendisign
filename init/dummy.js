@@ -61,6 +61,13 @@ Posts
 		author: 1,
 		content: '&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;https://www.indonesia.travel/content/dam/indtravelrevamp/en/destinations/java/dki-jakarta/Image1.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;img src=&quot;https://asialink.unimelb.edu.au/__data/assets/image/0009/2186667/Jakarta.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;img src=&quot;https://1nsw6u.akamaized.net/application/files/3114/7279/2041/jakarta-destination.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;/p&gt;',
 		status: true
+	}, {
+		title: 'Darkness',
+        thumbnail: 'https://i.ytimg.com/vi/2yKsDZrEF7U/maxresdefault.jpg',
+        description: 'Lonely in the Dark',
+        author: 1,
+        content: '&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;https://i.ytimg.com/vi/2yKsDZrEF7U/maxresdefault.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;img src=&quot;https://i.pinimg.com/originals/35/65/a8/3565a86a038acd35f6e4cbd9493a706e.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;img src=&quot;https://i.pinimg.com/originals/19/bf/1e/19bf1e8c8cba1a299911274196c5677b.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;/p&gt;',
+        status: true
 	}])
 	.then(function(users) {
 		console.log('Create dummy posts finished!')
