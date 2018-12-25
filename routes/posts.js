@@ -9,7 +9,7 @@ router.get('/', function(req, res) {
   res.json({status: {success: false, code: 404}, message: 'Not Found!'})
 });
 
-router.get('/get/all', function(req, res) {
+router.get('/get/all/:options', function(req, res) {
 	posts.getAll(req, res)
 });
 

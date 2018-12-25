@@ -56,7 +56,7 @@ Posts
 		status: true
 	}, {
 		title: 'Inilah Jakarta',
-		thumbnail: 'https://www.tourmaui.com/wp-content/uploads/Sunset-from-Haleakala.jpg',
+		thumbnail: 'https://www.indonesia.travel/content/dam/indtravelrevamp/en/destinations/java/dki-jakarta/Image1.jpg',
 		description: 'Main-Main ke Ibukota',
 		author: 1,
 		content: '&lt;p style=&quot;text-align: center;&quot;&gt;&lt;img src=&quot;https://www.indonesia.travel/content/dam/indtravelrevamp/en/destinations/java/dki-jakarta/Image1.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;img src=&quot;https://asialink.unimelb.edu.au/__data/assets/image/0009/2186667/Jakarta.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;img src=&quot;https://1nsw6u.akamaized.net/application/files/3114/7279/2041/jakarta-destination.jpg&quot; style=&quot;width: 500px;&quot;&gt;&lt;/p&gt;',

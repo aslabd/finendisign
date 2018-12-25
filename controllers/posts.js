@@ -12,17 +12,24 @@ Post.belongsTo(User, {foreignKey: 'author'})
 
 function PostsControllers() {
 	this.getAll = function(req, res) {
-		let offset = req.params.offset,
-			limit = req.params.limit
-			status = req.params.status
+		let options = JSON.parse(req.params.options)
+
+		let offset = Number(options.offset),
+			limit = Number(options.limit),
+			status = options.status
 
 		Post
 			.findAll({
 				where: {
 					status: true
 				},
+				exclude: ['content'],
 				offset: offset,
-				limit: limit
+				limit: limit,
+				include: [{
+					model: User,
+					attributes: ['username', 'name', 'email']
+				}]
 			})
 			.then(function(post) {
 				if (post == 0) {
@@ -37,7 +44,7 @@ function PostsControllers() {
 	}
 
 	this.get = function(req, res) {
-		let id = req.params.id
+		let id = Number(req.params.id)
 
 		Post
 			.findById(id)
