@@ -1,7 +1,12 @@
-var sequelize = require(__dirname + "/../configuration/database")
+var path = require('path')
 
-var User = sequelize.import(__dirname + "/../models/users");
-var Post = sequelize.import(__dirname + "/../models/posts");
+var sequelize = require(path.join(__dirname, '/../configuration/database'));
+
+var Users = sequelize.import(path.join(__dirname, '/../models/users'));
+var Posts = sequelize.import(path.join(__dirname, '/../models/posts'));
+var Images = sequelize.import(path.join(__dirname, '/../models/images'));
+var Categories = sequelize.import(path.join(__dirname, '/../models/categories'));
+var Configurations = sequelize.import(path.join(__dirname, '/../models/configurations'))
 
 sequelize
 	.authenticate()
@@ -12,17 +17,43 @@ sequelize
 		console.error('Unable to connect to the database:', err);
 	});
 
-User
+Users
 	.sync()
 	.then(function() {
-		Post
+		console.log('Finish: Categories');
+		Categories
 			.sync()
 			.then(function() {
-				console.log('Finish.');
+				console.log('Finish: Categories');
+				Posts
+					.sync()
+					.then(function() {
+						console.log('Finish: Posts');
+						Images
+							.sync()
+							.then(function() {
+								console.log('Finish: Images');
+							})
+							.catch(function(err) {
+								console.log(err);
+							})
+					})
+					.catch(function(err) {
+						console.log(err);
+					})
 			})
 			.catch(function(err) {
 				console.log(err);
 			})
+	})
+	.catch(function(err) {
+		console.log(err);
+	})
+
+Configurations
+	.sync()
+	.then(function() {
+		console.log('Finish: Configurations');
 	})
 	.catch(function(err) {
 		console.log(err);

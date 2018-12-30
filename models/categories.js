@@ -1,20 +1,16 @@
 module.exports = function(sequelize, DataType) {
-	return sequelize.define('post', {
-		title: {
+	return sequelize.define('category', {
+		name: {
 			type: DataType.TEXT('tiny'),
+			allowNull: false
+		},
+		priorities: {
+			type: DataType.INTEGER,
 			allowNull: false
 		},
 		description: {
 			type: DataType.TEXT,
 			allowNull: true
-		},
-		authorId: {
-			type: DataType.INTEGER,
-			allowNull: false
-		},
-		categoryId: {
-			type: DataType.INTEGER,
-			allowNull: false
 		},
 		status: {
 			type: DataType.BOOLEAN,

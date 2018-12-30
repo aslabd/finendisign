@@ -5,10 +5,14 @@ var express = require('express'),
 
 var sequelize = require(path.join(__dirname, '/../configuration/database'));
 
-var User = sequelize.import(path.join(__dirname, '/../models/users'));
-var Post = sequelize.import(path.join(__dirname, '/../models/posts'));
+var Users = sequelize.import(path.join(__dirname, '/../models/users'));
+var Posts = sequelize.import(path.join(__dirname, '/../models/posts'));
+var Images = sequelize.import(path.join(__dirname, '/../models/images'));
+var Categories = sequelize.import(path.join(__dirname, '/../models/categories'));
 
-Post.belongsTo(User, {foreignKey: 'author'})
+Posts.belongsTo(Users, {as: 'author'});
+Posts.hasMany(Images, {foreignKey: 'postId'});
+Posts.belongsTo(Categories);
 
 function PostsControllers() {
 	this.getAll = function(req, res) {
@@ -18,17 +22,24 @@ function PostsControllers() {
 			limit = Number(options.limit),
 			status = options.status
 
-		Post
+		Posts
 			.findAll({
 				where: {
 					status: true
 				},
-				exclude: ['content'],
 				offset: offset,
 				limit: limit,
 				include: [{
-					model: User,
+					model: Users,
+					as: 'author',
 					attributes: ['username', 'name', 'email']
+				}, {
+					model: Images,
+					attributes: ['url', 'isThumbnail']
+				}, {
+					model: Categories,
+					as: 'category',
+					attributes: ['name']
 				}]
 			})
 			.then(function(post) {
@@ -46,8 +57,24 @@ function PostsControllers() {
 	this.get = function(req, res) {
 		let id = Number(req.params.id)
 
-		Post
-			.findById(id)
+		Posts
+			.findByPk(id, {
+				where: {
+					status: true
+				},
+				include: [{
+					model: Users,
+					as: 'author',
+					attributes: ['username', 'name', 'email']
+				}, {
+					model: Images,
+					attributes: ['url', 'isThumbnail']
+				}, {
+					model: Categories,
+					as: 'category',
+					attributes: ['name']
+				}]
+			})
 			.then(function(post) {
 				if (post == null) {
 					res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan.', data: post})
@@ -62,25 +89,45 @@ function PostsControllers() {
 
 	this.create = function(req, res) {
 		let title = req.body.title,
-			thumbnail = req.body.thumbnail,
 			description = req.body.description,
 			author = req.body.author,
-			content = escape(req.body.content),
+			images = req.body.images,
 			status = req.body.status
 
-		if (title == null || description == null || content == null || status == null) {
+		if (title == null || description == null || images == 0 || status == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong.'})
 		} else {
-			Post
+			Posts
 				.create({
 					title: title,
-					thumbnail: thumbnail,
 					description: description,
 					author: author,
-					content: content,
 					status: status
 				})
-				.then(function(post) {
+				.then(function(posts) {
+					// (async function loop() {
+					// 	try {
+					// 		images.forEach(function(image) {
+					// 			await Images.create({
+					// 					url:image.url,
+					// 					post: post.id,
+					// 					isThumbnail: image.isThumbnail
+					// 				})
+					// 		})
+					// 	} catch(err) {
+					// 		Posts
+					// 			.destroy({
+					// 				where: {
+					// 					id: post.id
+					// 				}
+					// 			})
+					// 			.then(function(posts) {
+					// 				res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
+					// 			})
+					// 			.
+					// 		res.json({status: {success: false, code: 500}, message: 'Buat image gagal!'})
+					// 	}
+					// })();
 					res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: post})
 				})
 				.catch(function(err) {
@@ -92,13 +139,12 @@ function PostsControllers() {
 	this.update = function(req, res) {
 		let id = req.body.id,
 			title = req.body.title,
-			thumbnail = req.body.thumbnail,
 			description = req.body.description,
 			author = req.body.author,
-			content = escape(req.body.content),
+			images = req.body.images,
 			status = req.body.status
 
-		if (id == null || title == null || description == null || content == null || status == null) {
+		if (id == null || title == null || description == null || images == 0 || status == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong.'})
 		} else {
 			Post
@@ -110,10 +156,8 @@ function PostsControllers() {
 						Post
 							.update({
 								title: title,
-								thumbnail: thumbnail,
 								description: description,
 								author: author,
-								content: content,
 								status: status
 							}, {
 								where: {
@@ -146,17 +190,28 @@ function PostsControllers() {
 					if (post == null) {
 						res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
 					} else {
-						Post
+						Images
 							.destroy({
 								where: {
-									id: id
+									post: id
 								}
 							})
-							.then(function(post) {
-								res.json({status: {success: true, code: 200}, message: 'Hapus post berhasil!'})
+							.then(function(images) {
+								Post
+									.destroy({
+										where: {
+											id: id
+										}
+									})
+									.then(function(post) {
+										res.json({status: {success: true, code: 200}, message: 'Hapus image berhasil! Hapus post berhasil!'})
+									})
+									.catch(function(err) {
+										res.json({status: {success: false, code: 500}, message: 'hapus image berhasil! Hapus post gagal!', err: err})
+									})
 							})
 							.catch(function(err) {
-								res.json({status: {success: false, code: 500}, message: 'Hapus post gagal!', err: err})
+								res.json({status: {success: false, code: 500}, message: 'Hapus image gagal! Hapus post gagal!'})
 							})
 					}
 				})

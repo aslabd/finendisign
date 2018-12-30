@@ -1,22 +1,14 @@
 module.exports = function(sequelize, DataType) {
-	return sequelize.define('post', {
-		title: {
+	return sequelize.define('image', {
+		url: {
 			type: DataType.TEXT('tiny'),
 			allowNull: false
 		},
-		description: {
-			type: DataType.TEXT,
-			allowNull: true
-		},
-		authorId: {
+		postId: {
 			type: DataType.INTEGER,
 			allowNull: false
 		},
-		categoryId: {
-			type: DataType.INTEGER,
-			allowNull: false
-		},
-		status: {
+		isThumbnail: {
 			type: DataType.BOOLEAN,
 			defaultValue: false
 		}

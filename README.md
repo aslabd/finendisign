@@ -17,3 +17,4 @@ Insert Dummy Data to Database
 
 API Docs
 https://www.getpostman.com/collections/8e012947f00797a526af
+https://documenter.getpostman.com/view/1278887/RznBMzzj
