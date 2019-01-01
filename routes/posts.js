@@ -17,6 +17,14 @@ router.get('/get/:id', function(req, res) {
 	posts.get(req, res)
 });
 
+router.get('/get/:id/next', function(req, res) {
+	posts.getNext(req, res)
+});
+
+router.get('/get/:id/previous', function(req, res) {
+	posts.getPrevious(req, res)
+});
+
 /* POST users */
 router.post('/create', function(req, res) {
 	posts.create(req, res)
