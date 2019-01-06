@@ -98,7 +98,10 @@ function PostsControllers() {
 				.findByPk(id, {
 					where: {
 						status: true
-					}
+					},
+					attributes: [
+						'categoryId'
+					]
 				})
 				.then(function(posts) {
 					if (posts == null) {
@@ -165,7 +168,10 @@ function PostsControllers() {
 				.findByPk(id, {
 					where: {
 						status: true
-					}
+					},
+					attributes: [
+						'categoryId'
+					]
 				})
 				.then(function(posts) {
 					if (posts == null) {
