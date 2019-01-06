@@ -246,30 +246,35 @@ function PostsControllers() {
 					status: status
 				})
 				.then(function(posts) {
-					// (async function loop() {
-					// 	try {
-					// 		images.forEach(function(image) {
-					// 			await Images.create({
-					// 					url:image.url,
-					// 					post: post.id,
-					// 					isThumbnail: image.isThumbnail
-					// 				})
-					// 		})
-					// 	} catch(err) {
-					// 		Posts
-					// 			.destroy({
-					// 				where: {
-					// 					id: post.id
-					// 				}
-					// 			})
-					// 			.then(function(posts) {
-					// 				res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
-					// 			})
-					// 			.
-					// 		res.json({status: {success: false, code: 500}, message: 'Buat image gagal!'})
-					// 	}
-					// })();
-					res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: post})
+					let i = 0
+					try {
+						images.forEach(function(image) {
+							i = i + 1
+							Images
+								.create({
+									url:image.url,
+									post: post.id,
+									isThumbnail: image.isThumbnail
+								})
+
+							if (i == images.length) {
+								res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: post})
+							}
+						})
+					} catch(err) {
+						Posts
+							.destroy({
+								where: {
+									id: post.id
+								}
+							})
+							.then(function(posts) {
+								res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
+							})
+							.catch(function(err) {
+								res.json({status: {success: false, code: 500}, message: 'Buat image gagal!'})
+							})
+					}
 				})
 				.catch(function(err) {
 					res.json({status: {success: false, code: 500}, message: 'Buat post gagal!', err: err})
