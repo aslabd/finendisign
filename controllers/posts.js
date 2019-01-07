@@ -235,7 +235,7 @@ function PostsControllers() {
 			images = req.body.images,
 			status = req.body.status
 
-		if (title == null || description == null || images == 0 || status == null) {
+		if (title == null || description == null || images.length == 0 || status == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
 		} else {
 			Posts
@@ -247,34 +247,63 @@ function PostsControllers() {
 				})
 				.then(function(posts) {
 					let i = 0
-					try {
-						images.forEach(function(image) {
-							i = i + 1
-							Images
-								.create({
-									url:image.url,
-									post: post.id,
-									isThumbnail: image.isThumbnail
-								})
-
-							if (i == images.length) {
-								res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: post})
-							}
-						})
-					} catch(err) {
-						Posts
-							.destroy({
-								where: {
-									id: post.id
+					images.forEach(function(image) {
+						Images
+							.create({
+								url:image.url,
+								post: posts.id,
+								isThumbnail: image.isThumbnail
+							})
+							.then(function(images) {
+								i = i + 1
+								if (i == images.length) {
+									res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: post})
+								} else {
+									continue
 								}
 							})
-							.then(function(posts) {
-								res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
-							})
 							.catch(function(err) {
-								res.json({status: {success: false, code: 500}, message: 'Buat image gagal!'})
+								if (i > 0) {
+									Images
+										.destroy({
+											where: {
+												postId: posts.id
+											}
+										})
+										.then(function(images) {
+											Posts
+												.destroy({
+													where: {
+														id: posts.id
+													}
+												})
+												.then(function(posts) {
+													res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
+												})
+												.catch(function(err) {
+													res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
+												})
+										})
+										.catch(function(err) {
+											res.json({status: {success: false, code: 500}, message: 'Hapus image gagal! Buat post gagal!'})
+										})
+								} else {
+									Posts
+										.destroy({
+											where: {
+												id: posts.id
+											}
+										})
+										.then(function(posts) {
+											res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
+										})
+										.catch(function(err) {
+											res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
+										})
+								}
+								break
 							})
-					}
+					})
 				})
 				.catch(function(err) {
 					res.json({status: {success: false, code: 500}, message: 'Buat post gagal!', err: err})
@@ -293,10 +322,14 @@ function PostsControllers() {
 		if (id == null || title == null || description == null || images == 0 || status == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong.'})
 		} else {
-			Post
-				.findById(id)
-				.then(function(post) {
-					if (post == null) {
+			Posts
+				.findByPk(id, {
+					attributes: [
+						'id'
+					]
+				})
+				.then(function(posts) {
+					if (posts == null) {
 						res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
 					} else {
 						Post
@@ -310,8 +343,94 @@ function PostsControllers() {
 									id: id
 								}
 							})
-							.then(function(post) {
-								res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: post})
+							.then(function(posts) {
+								Image
+									.findAll({
+										where: {
+											postId: posts.id
+										},
+										attributes: [
+											'id'
+										]
+									})
+									.then(function(images) {
+										if (images.length == 0) {
+											res.json({status: {success: true, code: 200}, message: 'Update post berhasil!'})
+										} else {
+											Image
+											.destroy({
+												where: {
+													postId: posts.id
+												}
+											})
+											.then(function(images) {
+												let i = 0
+												images.forEach(function(image) {
+													Images
+														.create({
+															url:image.url,
+															post: posts.id,
+															isThumbnail: image.isThumbnail
+														})
+														.then(function(images) {
+															i = i + 1
+															if (i == images.length) {
+																res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: post})
+															} else {
+																continue
+															}
+														})
+														.catch(function(err) {
+															if (i > 0) {
+																Images
+																	.destroy({
+																		where: {
+																			postId: posts.id
+																		}
+																	})
+																	.then(function(images) {
+																		Posts
+																			.destroy({
+																				where: {
+																					id: posts.id
+																				}
+																			})
+																			.then(function(posts) {
+																				res.json({status: {success: false, code: 500}, message: 'Update post gagal: Update image gagal dan hapus post berhasil!'})
+																			})
+																			.catch(function(err) {
+																				res.json({status: {success: false, code: 500}, message: 'Update post gagal: Update image gagal dan hapus post gagal!', err: err})
+																			})
+																	})
+																	.catch(function(err) {
+																		res.json({status: {success: false, code: 500}, message: 'Hapus image gagal! Buat post gagal!'})
+																	})
+															} else {
+																Posts
+																	.destroy({
+																		where: {
+																			id: posts.id
+																		}
+																	})
+																	.then(function(posts) {
+																		res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
+																	})
+																	.catch(function(err) {
+																		res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
+																	})
+															}
+															break
+														})
+												})
+											})
+											.catch(function(err) {
+												res.json({status: {success: false, code: 500}, message: 'Update image gagal!', err: err})
+											})
+										}
+									})
+									.catch(function(err) {
+										res.json({status: {success: false, code: 500}, message: 'Ambil image gagal!', err: err})
+									})
 							})
 							.catch(function(err) {
 								res.json({status: {success: false, code: 500}, message: 'Update post gagal!', err: err})
@@ -330,16 +449,20 @@ function PostsControllers() {
 		if (id == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
 		} else {
-			Post
-				.findById(id)
-				.then(function(post) {
-					if (post == null) {
+			Posts
+				.findByPk(id, {
+					attributes: [
+						'id'
+					]
+				})
+				.then(function(posts) {
+					if (posts == null) {
 						res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
 					} else {
 						Images
 							.destroy({
 								where: {
-									post: id
+									postId: id
 								}
 							})
 							.then(function(images) {
