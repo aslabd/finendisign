@@ -26,10 +26,11 @@ function PostsControllers() {
 		Posts
 			.findAll({
 				where: {
-					status: true
+					status: status
 				},
 				offset: offset,
 				limit: limit,
+				order: '"id" DESC',
 				include: [{
 					model: Users,
 					as: 'author',
@@ -55,14 +56,53 @@ function PostsControllers() {
 			})
 	}
 
+	this.getAllByCategoryId = function(req, res) {
+		let options = JSON.parse(req.params.options),
+			categoryId = Number(req.params.categoryId)
+
+		let offset = Number(options.offset),
+			limit = Number(options.limit),
+			status = options.status
+
+		Posts
+			.findAll({
+				where: {
+					status: status,
+					categoryId: categoryId
+				},
+				offset: offset,
+				limit: limit,
+				order: '"id" DESC',
+				include: [{
+					model: Users,
+					as: 'author',
+					attributes: ['username', 'name', 'email']
+				}, {
+					model: Images,
+					attributes: ['url', 'isThumbnail']
+				}, {
+					model: Categories,
+					as: 'category',
+					attributes: ['name']
+				}]
+			})
+			.then(function(posts) {
+				if (posts == 0) {
+					res.json({status: {success: true, code: 200}, message: 'Belum ada post.', data: post})
+				} else {
+					res.json({status: {success: true, code: 200}, message: 'Berhasil ambil post.', data: post})
+				}
+			})
+			.catch(function(err) {
+				res.json({status: {success: false, code: 500}, message: 'Gagal ambil post. Kesalahan server.', err: err})
+			})
+	}
+
 	this.get = function(req, res) {
 		let id = Number(req.params.id)
 
 		Posts
 			.findByPk(id, {
-				where: {
-					status: true
-				},
 				include: [{
 					model: Users,
 					as: 'author',
@@ -88,7 +128,7 @@ function PostsControllers() {
 			})
 	}
 
-	this.getNext = function(req, res) {
+	this.getNextSameCategoryId = function(req, res) {
 		let id = req.params.id
 
 		if (id == null) {
@@ -158,7 +198,7 @@ function PostsControllers() {
 		}
 	}
 
-	this.getPrevious = function(req, res) {
+	this.getPreviousSameCategoryId = function(req, res) {
 		let id = req.params.id
 
 		if (id == null) {
@@ -250,16 +290,14 @@ function PostsControllers() {
 					images.forEach(function(image) {
 						Images
 							.create({
-								url:image.url,
+								url:image[i].url,
 								post: posts.id,
-								isThumbnail: image.isThumbnail
+								isThumbnail: image[i].isThumbnail
 							})
 							.then(function(images) {
 								i = i + 1
 								if (i == images.length) {
 									res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: post})
-								} else {
-									continue
 								}
 							})
 							.catch(function(err) {
@@ -301,7 +339,6 @@ function PostsControllers() {
 											res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
 										})
 								}
-								break
 							})
 					})
 				})
@@ -376,8 +413,6 @@ function PostsControllers() {
 															i = i + 1
 															if (i == images.length) {
 																res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: post})
-															} else {
-																continue
 															}
 														})
 														.catch(function(err) {
@@ -419,7 +454,6 @@ function PostsControllers() {
 																		res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
 																	})
 															}
-															break
 														})
 												})
 											})

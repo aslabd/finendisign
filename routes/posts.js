@@ -13,16 +13,20 @@ router.get('/get/all/:options', function(req, res) {
 	posts.getAll(req, res)
 });
 
+router.get('/get/category/:categoryId/:options', function(req, res) {
+	posts.getAllByCategoryId(req, res)
+});
+
 router.get('/get/:id', function(req, res) {
 	posts.get(req, res)
 });
 
 router.get('/get/:id/next', function(req, res) {
-	posts.getNext(req, res)
+	posts.getNextSameCategoryId(req, res)
 });
 
 router.get('/get/:id/previous', function(req, res) {
-	posts.getPrevious(req, res)
+	posts.getPreviousSameCategoryId(req, res)
 });
 
 /* POST users */
