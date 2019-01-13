@@ -6,6 +6,8 @@ var express = require('express'),
 var sequelize = require(path.join(__dirname, '/../configuration/database'));
 var Op = sequelize.Op
 
+var Auth = require(path.join(__dirname, '/auth'));
+
 var Users = sequelize.import(path.join(__dirname, '/../models/users'));
 var Posts = sequelize.import(path.join(__dirname, '/../models/posts'));
 var Images = sequelize.import(path.join(__dirname, '/../models/images'));
@@ -16,63 +18,33 @@ Posts.hasMany(Images, {foreignKey: 'postId'});
 Posts.belongsTo(Categories);
 
 function PostsControllers() {
-	this.getAll = function(req, res) {
+	this.getAll = async function(req, res) {
 		let options = JSON.parse(req.params.options)
 
 		let offset = Number(options.offset),
-			limit = Number(options.limit),
-			status = options.status
+			limit = Number(options.limit)
 
+		let status
+
+		let auth = await Auth.auth(req)
+		if (auth.code != 200) {
+			status = [true]
+		} else {
+			status = options.status
+		}
+		
 		Posts
 			.findAll({
 				where: {
-					status: status
+					status: {
+						[Op.or]: status
+					}
 				},
 				offset: offset,
 				limit: limit,
-				order: '"id" DESC',
-				include: [{
-					model: Users,
-					as: 'author',
-					attributes: ['username', 'name', 'email']
-				}, {
-					model: Images,
-					attributes: ['url', 'isThumbnail']
-				}, {
-					model: Categories,
-					as: 'category',
-					attributes: ['name']
-				}]
-			})
-			.then(function(post) {
-				if (post == 0) {
-					res.json({status: {success: true, code: 200}, message: 'Belum ada post.', data: post})
-				} else {
-					res.json({status: {success: true, code: 200}, message: 'Berhasil ambil post.', data: post})
-				}
-			})
-			.catch(function(err) {
-				res.json({status: {success: false, code: 500}, message: 'Gagal ambil post. Kesalahan server.', err: err})
-			})
-	}
-
-	this.getAllByCategoryId = function(req, res) {
-		let options = JSON.parse(req.params.options),
-			categoryId = Number(req.params.categoryId)
-
-		let offset = Number(options.offset),
-			limit = Number(options.limit),
-			status = options.status
-
-		Posts
-			.findAll({
-				where: {
-					status: status,
-					categoryId: categoryId
-				},
-				offset: offset,
-				limit: limit,
-				order: '"id" DESC',
+				order: [
+					['id', 'DESC']
+				],
 				include: [{
 					model: Users,
 					as: 'author',
@@ -88,21 +60,45 @@ function PostsControllers() {
 			})
 			.then(function(posts) {
 				if (posts == 0) {
-					res.json({status: {success: true, code: 200}, message: 'Belum ada post.', data: post})
+					res.json({status: {success: true, code: 200}, message: 'Belum ada post.', data: posts})
 				} else {
-					res.json({status: {success: true, code: 200}, message: 'Berhasil ambil post.', data: post})
+					res.json({status: {success: true, code: 200}, message: 'Berhasil ambil post.', data: posts})
 				}
 			})
 			.catch(function(err) {
 				res.json({status: {success: false, code: 500}, message: 'Gagal ambil post. Kesalahan server.', err: err})
-			})
+			});
 	}
 
-	this.get = function(req, res) {
-		let id = Number(req.params.id)
+	this.getAllByCategoryId = async function(req, res) {
+		let options = JSON.parse(req.params.options),
+			categoryId = Number(req.params.categoryId)
+
+		let offset = Number(options.offset),
+			limit = Number(options.limit)
+
+		let status
+		
+		let auth = await Auth.auth(req)
+		if (auth.code != 200) {
+			status = [true]
+		} else {
+			status = options.status
+		}
 
 		Posts
-			.findByPk(id, {
+			.findAll({
+				where: {
+					status: {
+						[Op.or]: status
+					},
+					categoryId: categoryId
+				},
+				offset: offset,
+				limit: limit,
+				order: [
+					['id', 'DESC']
+				],
 				include: [{
 					model: Users,
 					as: 'author',
@@ -116,11 +112,55 @@ function PostsControllers() {
 					attributes: ['name']
 				}]
 			})
-			.then(function(post) {
-				if (post == null) {
-					res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan.', data: post})
+			.then(function(posts) {
+				if (posts == 0) {
+					res.json({status: {success: true, code: 200}, message: 'Belum ada post.', data: posts})
 				} else {
-					res.json({status: {success: true, code: 200}, message: 'Ambil post dengan id berhasil.', data: post})
+					res.json({status: {success: true, code: 200}, message: 'Berhasil ambil post.', data: posts})
+				}
+			})
+			.catch(function(err) {
+				res.json({status: {success: false, code: 500}, message: 'Gagal ambil post. Kesalahan server.', err: err})
+			})
+	}
+
+	this.get = async function(req, res) {
+		let id = Number(req.params.id)
+
+		let status
+		
+		let auth = await Auth.auth(req)
+		if (auth.code != 200) {
+			status = [true]
+		} else {
+			status = [true, false]
+		}
+
+		Posts
+			.findByPk(id, {
+				where: {
+					status: {
+						[Op.or]: status
+					}
+				},
+				include: [{
+					model: Users,
+					as: 'author',
+					attributes: ['username', 'name', 'email']
+				}, {
+					model: Images,
+					attributes: ['url', 'isThumbnail']
+				}, {
+					model: Categories,
+					as: 'category',
+					attributes: ['name']
+				}]
+			})
+			.then(function(posts) {
+				if (posts == null) {
+					res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan.', data: posts})
+				} else {
+					res.json({status: {success: true, code: 200}, message: 'Ambil post dengan id berhasil.', data: posts})
 				}
 			})
 			.catch(function(err) {
@@ -128,8 +168,17 @@ function PostsControllers() {
 			})
 	}
 
-	this.getNextSameCategoryId = function(req, res) {
+	this.getNextSameCategoryId = async function(req, res) {
 		let id = req.params.id
+
+		let status
+		
+		let auth = await Auth.auth(req)
+		if (auth.code != 200) {
+			status = [true]
+		} else {
+			status = [true, false]
+		}
 
 		if (id == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
@@ -137,7 +186,9 @@ function PostsControllers() {
 			Posts
 				.findByPk(id, {
 					where: {
-						status: true
+						status: {
+							[Op.or]: status
+						}
 					},
 					attributes: [
 						'categoryId'
@@ -198,8 +249,18 @@ function PostsControllers() {
 		}
 	}
 
-	this.getPreviousSameCategoryId = function(req, res) {
+	this.getPreviousSameCategoryId = async function(req, res) {
 		let id = req.params.id
+
+		let status
+		
+		let auth = await Auth.auth(req)
+
+		if (auth.code != 200) {
+			status = [true]
+		} else {
+			status = [true, false]
+		}
 
 		if (id == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
@@ -207,7 +268,9 @@ function PostsControllers() {
 			Posts
 				.findByPk(id, {
 					where: {
-						status: true
+						status: {
+							[Op.or]: status
+						}
 					},
 					attributes: [
 						'categoryId'
@@ -268,79 +331,81 @@ function PostsControllers() {
 		}
 	}
 
-	this.create = function(req, res) {
+	this.create = async function(req, res) {
 		let title = req.body.title,
 			description = req.body.description,
-			author = req.body.author,
 			images = req.body.images,
+			categoryId = req.body.categoryId,
 			status = req.body.status
 
-		if (title == null || description == null || images.length == 0 || status == null) {
+		let auth = await Auth.auth(req)
+
+		if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
+		} else if (title == null || description == null || images.length == 0 || status == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
 		} else {
 			Posts
 				.create({
 					title: title,
 					description: description,
-					author: author,
+					authorId: auth.decoded.id,
+					categoryId: categoryId,
 					status: status
 				})
 				.then(function(posts) {
-					let i = 0
-					images.forEach(function(image) {
-						Images
-							.create({
-								url:image[i].url,
-								post: posts.id,
-								isThumbnail: image[i].isThumbnail
-							})
-							.then(function(images) {
-								i = i + 1
-								if (i == images.length) {
-									res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: post})
+					let i
+					(async function() {
+						for (i = 0; i < images.length; i++) {
+							try {
+								await Images.create({
+									url: images[i].url,
+									postId: posts.id,
+									isThumbnail: images[i].isThumbnail
+								})
+							} catch (err) {
+								break
+							}
+						}
+
+						if (i == (images.length)) { 
+							res.json({status: {success: true, code: 200}, message: 'Buat post berhasil!', data: posts})
+						} else if (i > 0) {
+							(async function() {
+								try {
+									await Images.destroy({
+										where: {
+											postId: posts.id
+										}
+									})
+
+									await Posts.destroy({
+										where: {
+											id: posts.id
+										}
+									})
+
+									res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Buat post gagal!'})
+								} catch (err) {
+									res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Buat post gagal!', err: err})
 								}
-							})
-							.catch(function(err) {
-								if (i > 0) {
-									Images
-										.destroy({
-											where: {
-												postId: posts.id
-											}
-										})
-										.then(function(images) {
-											Posts
-												.destroy({
-													where: {
-														id: posts.id
-													}
-												})
-												.then(function(posts) {
-													res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
-												})
-												.catch(function(err) {
-													res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
-												})
-										})
-										.catch(function(err) {
-											res.json({status: {success: false, code: 500}, message: 'Hapus image gagal! Buat post gagal!'})
-										})
-								} else {
-									Posts
-										.destroy({
-											where: {
-												id: posts.id
-											}
-										})
-										.then(function(posts) {
-											res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
-										})
-										.catch(function(err) {
-											res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
-										})
+							})();
+						} else {
+							(async function() {
+								try {
+									await Posts.destroy({
+										where: {
+											id: posts.id
+										}
+									})
+
+									res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Buat post gagal!'})
+								} catch (err) {
+									res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Buat post gagal!', err: err})
 								}
-							})
-					})
+							})();
+						}
+					})();
 				})
 				.catch(function(err) {
 					res.json({status: {success: false, code: 500}, message: 'Buat post gagal!', err: err})
@@ -348,123 +413,124 @@ function PostsControllers() {
 		}
 	}
 
-	this.update = function(req, res) {
+	this.update = async function(req, res) {
 		let id = req.body.id,
 			title = req.body.title,
 			description = req.body.description,
-			author = req.body.author,
 			images = req.body.images,
+			categoryId = req.body.categoryId,
 			status = req.body.status
 
-		if (id == null || title == null || description == null || images == 0 || status == null) {
+		let auth = await Auth.auth(req)
+
+		if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
+		} else if (id == null || title == null || description == null || images == 0 || status == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong.'})
 		} else {
 			Posts
 				.findByPk(id, {
+					where: {
+						authorId: auth.decoded.id
+					},
 					attributes: [
-						'id'
+						'id',
+						'authorId'
 					]
 				})
 				.then(function(posts) {
 					if (posts == null) {
 						res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
+					} else if (auth.decoded.id != posts.authorId && auth.decoded.role != 'super') {
+						res.json({status: {success: false, code: 403}, message: 'Bukan author post!'})
 					} else {
 						Post
 							.update({
 								title: title,
 								description: description,
-								author: author,
+								categoryId: categoryId,
 								status: status
 							}, {
 								where: {
-									id: id
+									id: id,
+									authorId: auth.decoded.id
 								}
 							})
 							.then(function(posts) {
-								Image
-									.findAll({
-										where: {
-											postId: posts.id
-										},
-										attributes: [
-											'id'
-										]
-									})
-									.then(function(images) {
-										if (images.length == 0) {
-											res.json({status: {success: true, code: 200}, message: 'Update post berhasil!'})
-										} else {
-											Image
-											.destroy({
-												where: {
-													postId: posts.id
-												}
-											})
-											.then(function(images) {
-												let i = 0
-												images.forEach(function(image) {
-													Images
-														.create({
-															url:image.url,
-															post: posts.id,
-															isThumbnail: image.isThumbnail
-														})
-														.then(function(images) {
-															i = i + 1
-															if (i == images.length) {
-																res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: post})
-															}
-														})
-														.catch(function(err) {
-															if (i > 0) {
-																Images
-																	.destroy({
-																		where: {
-																			postId: posts.id
-																		}
-																	})
-																	.then(function(images) {
-																		Posts
-																			.destroy({
-																				where: {
-																					id: posts.id
-																				}
-																			})
-																			.then(function(posts) {
-																				res.json({status: {success: false, code: 500}, message: 'Update post gagal: Update image gagal dan hapus post berhasil!'})
-																			})
-																			.catch(function(err) {
-																				res.json({status: {success: false, code: 500}, message: 'Update post gagal: Update image gagal dan hapus post gagal!', err: err})
-																			})
-																	})
-																	.catch(function(err) {
-																		res.json({status: {success: false, code: 500}, message: 'Hapus image gagal! Buat post gagal!'})
-																	})
-															} else {
-																Posts
-																	.destroy({
-																		where: {
-																			id: posts.id
-																		}
-																	})
-																	.then(function(posts) {
-																		res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Buat post gagal!'})
-																	})
-																	.catch(function(err) {
-																		res.json({status: {success: false, code: 500}, message: 'Buat image gagal! Hapus post gagal!'})
-																	})
-															}
-														})
+								(async function() {
+									try {
+										await Images.destroy({
+											where: {
+												postId: posts.id
+											}
+										})
+									} catch (err) {
+
+									}
+
+									let i
+
+									(async function() {
+										for (i = 0; i < images.length; i++) {
+											try {
+												await Images.create({
+													url: images[i].url,
+													postId: posts.id,
+													isThumbnail: images[i].isThumbnail
 												})
-											})
-											.catch(function(err) {
-												res.json({status: {success: false, code: 500}, message: 'Update image gagal!', err: err})
-											})
+											} catch (err) {
+												break
+											}
 										}
-									})
-									.catch(function(err) {
-										res.json({status: {success: false, code: 500}, message: 'Ambil image gagal!', err: err})
-									})
+
+										if (i == (images.length)) { 
+											res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: posts})
+										} else if (i > 0) {
+											(async function() {
+												try {
+													await Images.destroy({
+														where: {
+															postId: posts.id
+														}
+													})
+
+													res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Update post gagal!'})
+												} catch (err) {
+													res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Update post gagal!', err: err})
+												}
+											})();
+										} else {
+											(async function() {
+												try {
+													await Posts.destroy({
+														where: {
+															id: posts.id
+														}
+													})
+
+													res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Buat post gagal!'})
+												} catch (err) {
+													res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Buat post gagal!', err: err})
+												}
+											})();
+										}
+									})();
+								})();
+								// Image
+								// 	.destroy({
+								// 		where: {
+								// 			postId: posts.id
+								// 		},
+								// 		attributes: [
+								// 			'id'
+								// 		]
+								// 	})
+								// 	.then(function(images) {
+									
+								// 	})
+								// 	.catch(function(err) {
+								// 		res.json({status: {success: false, code: 500}, message: 'Ambil image gagal!', err: err})
+								// 	})
 							})
 							.catch(function(err) {
 								res.json({status: {success: false, code: 500}, message: 'Update post gagal!', err: err})
@@ -477,21 +543,31 @@ function PostsControllers() {
 		}
 	}
 
-	this.delete = function(req, res) {
+	this.delete = async function(req, res) {
 		let id = req.body.id
 
-		if (id == null) {
+		let auth = await Auth.auth(req)
+
+		if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
+		} else if (id == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
 		} else {
 			Posts
 				.findByPk(id, {
+					where: {
+						authorId: auth.decoded.id
+					},
 					attributes: [
-						'id'
+						'id',
+						'authorId'
 					]
 				})
 				.then(function(posts) {
 					if (posts == null) {
 						res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
+					} else if (auth.decoded.id != posts.authorId && auth.decoded.role != 'super') {
+						res.json({status: {success: false, code: 403}, message: 'Bukan author post!'})
 					} else {
 						Images
 							.destroy({
@@ -503,7 +579,8 @@ function PostsControllers() {
 								Post
 									.destroy({
 										where: {
-											id: id
+											id: id,
+											authorId: auth.decoded.id
 										}
 									})
 									.then(function(post) {

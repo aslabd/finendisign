@@ -81,6 +81,7 @@ function UsersControllers() {
 						status: true
 					},
 					attributes: [
+						'id',
 						'name',
 						'username',
 						'role',
