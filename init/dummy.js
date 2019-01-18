@@ -161,6 +161,18 @@ Configurations
 		key: 'home-background',
 		value: 'https://i.pinimg.com/originals/35/65/a8/3565a86a038acd35f6e4cbd9493a706e.jpg',
 		status: true
+	}, {
+		key: 'about-me-title',
+		value: 'Finendi Wardhana',
+		status: true
+	}, {
+		key: 'about-me-content',
+		value: '',
+		status: true
+	}, {
+		key: 'about-me-picture',
+		value: '',
+		status: true
 	}])
 	.then(function(users) {
 		console.log('Create dummy configurations finished!')

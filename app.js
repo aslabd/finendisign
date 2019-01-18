@@ -11,6 +11,7 @@ var postsRouter = require(path.join(__dirname, 'routes', 'posts'));
 var imagesRouter = require(path.join(__dirname, 'routes', 'images'));
 var categoriesRouter = require(path.join(__dirname, 'routes', 'categories'));
 var configurationsRouter = require(path.join(__dirname, 'routes', 'configurations'));
+var mailerRouter = require(path.join(__dirname, 'routes', 'mailer'));
 
 var app = express();
 
@@ -33,6 +34,7 @@ app.use('/posts', postsRouter);
 app.use('/images', imagesRouter);
 app.use('/categories', categoriesRouter);
 app.use('/configurations', configurationsRouter);
+app.use('/mailer', mailerRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

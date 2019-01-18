@@ -4,6 +4,8 @@ var sequelize = require(path.join(__dirname, '/../configuration/database'));
 
 var Categories = sequelize.import(path.join(__dirname, '/../models/categories'));
 
+var Auth = require(path.join(__dirname, '/auth'));
+
 
 function CategoriesControllers() {
 	this.getAll = function(req, res) {
@@ -31,7 +33,11 @@ function CategoriesControllers() {
 			description = req.body.description,
 			status = req.body.status
 
-		if (name == null || priorities == null) {
+		let auth = await Auth.auth(req)
+
+		if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
+		} else if (name == null || priorities == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
 		} else {
 			Categories

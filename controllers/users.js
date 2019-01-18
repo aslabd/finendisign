@@ -2,17 +2,14 @@ var crypto = require('crypto'),
 	path = require('path'),
 	jwt = require('jsonwebtoken')
 
-var commonConfiguration = require(path.join(__dirname, '/../configuration/common'))
+var commonConfiguration = require(path.join(__dirname, '/../configuration/common'));
 
 var sequelize = require(path.join(__dirname, '/../configuration/database'));
 var Op = sequelize.Op
 
 var User = sequelize.import(path.join(__dirname + '/../models/users'));
 
-var isEmail = function(email) {
-	var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-	return email.match(regex);
-}
+var Utils = require(path.join(__dirname, '/utils'));
 
 function UsersControllers() {
 	this.getAll = function(req, res) {
@@ -127,7 +124,7 @@ function UsersControllers() {
 
 		if (!username || !name || !email || !role || !password || !confirm_password) {
 			res.json({status: {success: false, code: 400}, message: 'Ada form yang kosong.'})
-		} if (!isEmail(email)) {
+		} if (!Utils.isEmail(email)) {
 			res.json({status: {success: false, code: 400}, message: 'Format email salah.'})
 		} else if (confirm_password != password) {
 			res.json({status: {success: false, code: 400}, message: 'Password beda dengan konfirmasi.'})
