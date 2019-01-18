@@ -27,7 +27,7 @@ function CategoriesControllers() {
 			})
 	}
 
-	this.create = function(req, res) {
+	this.create = async function(req, res) {
 		let name = req.body.name,
 			priorities = Number(req.body.priorities),
 			description = req.body.description,

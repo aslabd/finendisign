@@ -6,7 +6,7 @@ var commonConfiguration = require(path.join(__dirname, '/../configuration/common
 var Utils = require(path.join(__dirname, '/utils'));
 
 function MailerControllers() {
-	this.transporter = fuction() {
+	this.transporter = function() {
 		return nodemailer.createTransport({
 		    host: "smtp.ethereal.email",
 		    port: 587,
