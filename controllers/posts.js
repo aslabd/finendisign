@@ -444,97 +444,67 @@ function PostsControllers() {
 					} else if (auth.decoded.id != posts.authorId && auth.decoded.role != 'super') {
 						res.json({status: {success: false, code: 403}, message: 'Bukan author post!'})
 					} else {
-						Post
-							.update({
-								title: title,
-								description: description,
-								categoryId: categoryId,
-								status: status
-							}, {
-								where: {
-									id: id,
-									authorId: auth.decoded.id
-								}
-							})
-							.then(function(posts) {
-								(async function() {
-									try {
-										await Images.destroy({
-											where: {
-												postId: posts.id
-											}
-										})
-									} catch (err) {
-
-									}
-
-									let i
-
-									(async function() {
-										for (i = 0; i < images.length; i++) {
-											try {
-												await Images.create({
-													url: images[i].url,
-													postId: posts.id,
-													isThumbnail: images[i].isThumbnail
-												})
-											} catch (err) {
-												break
-											}
+						(async function() {
+							try {
+								await Images
+									.destroy({
+										where: {
+											postId: id
 										}
+									})
 
-										if (i == (images.length)) { 
-											res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: posts})
-										} else if (i > 0) {
-											(async function() {
-												try {
-													await Images.destroy({
-														where: {
-															postId: posts.id
-														}
-													})
-
-													res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Update post gagal!'})
-												} catch (err) {
-													res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Update post gagal!', err: err})
-												}
-											})();
-										} else {
-											(async function() {
-												try {
-													await Posts.destroy({
-														where: {
-															id: posts.id
-														}
-													})
-
-													res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Buat post gagal!'})
-												} catch (err) {
-													res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Buat post gagal!', err: err})
-												}
-											})();
+								Posts
+									.update({
+										title: title,
+										description: description,
+										categoryId: categoryId,
+										status: status
+									}, {
+										where: {
+											id: id
 										}
-									})();
-								})();
-								// Image
-								// 	.destroy({
-								// 		where: {
-								// 			postId: posts.id
-								// 		},
-								// 		attributes: [
-								// 			'id'
-								// 		]
-								// 	})
-								// 	.then(function(images) {
-									
-								// 	})
-								// 	.catch(function(err) {
-								// 		res.json({status: {success: false, code: 500}, message: 'Ambil image gagal!', err: err})
-								// 	})
-							})
-							.catch(function(err) {
+									})
+									.then(function(posts) {
+										let i
+										(async function() {
+											for (i = 0; i < images.length; i++) {
+												try {
+													await Images.create({
+														url: images[i].url,
+														postId: posts.id,
+														isThumbnail: images[i].isThumbnail
+													})
+												} catch (err) {
+													break
+												}
+											}
+
+											if (i == (images.length)) { 
+												res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: posts})
+											} else if (i > 0) {
+												(async function() {
+													try {
+														await Images.destroy({
+															where: {
+																postId: posts.id
+															}
+														})
+
+														res.json({status: {success: false, code: 500}, message: 'Update image gagal! Update post gagal!'})
+													} catch (err) {
+														res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Update post gagal!', err: err})
+													}
+												})();
+											}
+										})();
+									})
+									.catch(function(err) {
+										res.json({status: {success: false, code: 500}, message: 'Update post gagal!', err: err})
+									})
+							} catch (err) {
 								res.json({status: {success: false, code: 500}, message: 'Update post gagal!', err: err})
-							})
+							}
+						})();
 					}
 				})
 				.catch(function(err) {

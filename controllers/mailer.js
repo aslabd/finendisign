@@ -29,6 +29,17 @@ function MailerControllers() {
 		return mailOptions
 	}
 
+	this.send = async function(mailOptions) {
+		return new Promise(function(resolve, reject) {
+			try {
+				let send = await transporter.sendMail(mailOptions)
+				resolve(send)
+			} catch (err) {
+				reject(err)
+			}
+		})
+	}
+
 	this.sendMessageToAdmin = function(req, res) {
 		let subject = req.body.subject,
 			firstname = req.body.firstname,
@@ -55,10 +66,10 @@ function MailerControllers() {
 
 			(async function() {
 				try {
-					let send = await transporter.sendMail(emailInfo)
-					res.json({status: {success: true, code: 200}, message: 'Email berhasil dikirim!', data: send})
+					let info = await send(emailInfo)
+					res.json({status: {success: true, code: 200}, message: 'Kirim email berhasil!', data: info})
 				} catch (err) {
-					res.json({status: {success: false, code: 500}, message: 'Email gagal dikirim!', err: err})	
+					res.json({status: {success: false, code: 500}, message: 'Kirim email gagal!', err: err})
 				}
 			})()
 		}

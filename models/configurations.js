@@ -2,7 +2,8 @@ module.exports = function(sequelize, DataType) {
 	return sequelize.define('configuration', {
 		key: {
 			type: DataType.STRING,
-			allowNull: false
+			allowNull: false,
+			unique: true
 		},
 		value: {
 			type: DataType.TEXT,
