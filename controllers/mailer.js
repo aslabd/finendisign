@@ -29,14 +29,16 @@ function MailerControllers() {
 		return mailOptions
 	}
 
-	this.send = async function(mailOptions) {
+	this.send = function(mailOptions) {
 		return new Promise(function(resolve, reject) {
-			try {
-				let send = await transporter.sendMail(mailOptions)
-				resolve(send)
-			} catch (err) {
-				reject(err)
-			}
+			(async function() {
+				try {
+					let send = await transporter.sendMail(mailOptions)
+					resolve(send)
+				} catch (err) {
+					reject(err)
+				}
+			})();
 		})
 	}
 

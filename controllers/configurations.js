@@ -8,7 +8,7 @@ var Configurations = sequelize.import(path.join(__dirname, '/../models/configura
 
 
 function ConfigurationsControllers() {
-	this.getAll = function(req, res) {
+	this.getAll = async function(req, res) {
 		let auth = await Auth.auth(req)
 		if (auth.code != 200) {
 			status = [true]

@@ -63,6 +63,8 @@ function CategoriesControllers() {
 			description = req.body.description,
 			status = req.body.status
 
+		let auth = await Auth.auth(req)
+
 		if (auth.code != 200) {
 			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
 		} else if (name == null || priorities == null) {
@@ -86,6 +88,42 @@ function CategoriesControllers() {
 							})
 							.catch(function(err) {
 								res.json({status: {success: false, code: 500}, message: 'Update category gagal!', err: err})
+							})
+					}
+				})
+				.catch(function(err) {
+					res.json({status: {success: false, code: 500}, message: 'Cari category gagal!', err: err})
+				})
+		}
+	}
+
+	this.delete = async function(req, res) {
+		let id = req.body.id
+
+		let auth = await Auth.auth(req)
+
+		if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
+		} else if (name == null || priorities == null) {
+			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
+		} else {
+			Categories
+				.findByPk(id)
+				.then(function(categories) {
+					if (categories == null) {
+						res.json({status: {success: false, code: 404}, message: 'Category tidak ditemukan!'})
+					} else {
+						Categories
+							.destroy({
+								where: {
+									id: id
+								}
+							})
+							.then(function(categories) {
+								res.json({status: {success: true, code: 200}, message: 'Hapus category berhasil!', data: categories})
+							})
+							.catch(function(err) {
+								res.json({status: {success: false, code: 500}, message: 'Hapus category gagal!', err: err})
 							})
 					}
 				})
