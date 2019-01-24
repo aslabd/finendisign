@@ -205,7 +205,7 @@ function UsersControllers() {
 			User
 				.findAll({
 					where: {
-						id: auth.decoded.id
+						id: auth.decoded.id,
 						[Op.or]: [{username: username}, {email: email}]
 					}
 				})
