@@ -14,7 +14,7 @@ module.exports = {
 	},
 	contactMe: {
 		email: {
-			address: 'admin@finendisign.com',
+			address: 'contact@finendisign.com',
 			password: 'passwordnyapahayooo'
 		}
 	},

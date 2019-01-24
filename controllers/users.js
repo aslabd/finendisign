@@ -126,13 +126,15 @@ function UsersControllers() {
 		}
 	}
 
-	this.create = function(req, res) {
+	this.create = async function(req, res) {
 		let username = req.body.username,
 			name = req.body.name,
 			email = req.body.email,
 			role = req.body.role,
 			password = req.body.password,
 			confirm_password = req.body.confirm_password
+
+		let auth = await Auth.auth(req)
 
 		if (!username || !name || !email || !role || !password || !confirm_password) {
 			res.json({status: {success: false, code: 400}, message: 'Ada form yang kosong.'})
@@ -142,6 +144,10 @@ function UsersControllers() {
 			res.json({status: {success: false, code: 400}, message: 'Format password salah! Minimal 6 karakter serta terdapat 1 huruf kecil, 1 huruf kapital, dan 1 angka'})
 		} else if (confirm_password != password) {
 			res.json({status: {success: false, code: 400}, message: 'Password beda dengan konfirmasi.'})
+		} else if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
+		} else if (auth.decoded.role != 'super') {
+			res.json({status: {success: false, code: 403}, message: 'Tidak dapat akses fungsi!'})
 		} else {
 			User
 				.findAll({
@@ -175,14 +181,15 @@ function UsersControllers() {
 		}
 	}
 
-	this.update = function(req, res) {
-		let id = req.body.id,
-			username = req.body.username,
+	this.update = async function(req, res) {
+		let username = req.body.username,
 			name = req.body.name,
 			email = req.body.email,
 			role = req.body.role,
 			password = req.body.password,
 			confirm_password = req.body.confirm_password
+
+		let auth = await Auth.auth(req)
 
 		if (!username || !name || !email || !role || !password || !confirm_password) {
 			res.json({status: {success: false, code: 400}, message: 'Ada form yang kosong.'})
@@ -192,10 +199,13 @@ function UsersControllers() {
 			res.json({status: {success: false, code: 400}, message: 'Format password salah. Minimal 6 karakter serta terdapat 1 huruf kecil, 1 huruf kapital, dan 1 angka'})
 		} else if (confirm_password != password) {
 			res.json({status: {success: false, code: 400}, message: 'Password beda dengan konfirmasi.'})
+		} else if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
 		} else {
 			User
 				.findAll({
 					where: {
+						id: auth.decoded.id
 						[Op.or]: [{username: username}, {email: email}]
 					}
 				})
@@ -225,13 +235,46 @@ function UsersControllers() {
 		}
 	}
 
-	this.delete = function(req, res) {
+	this.delete = async function(req, res) {
+		let id = Number(req.body.id)
 
+		let auth = await Auth.auth(req)
+
+		if (id == null) {
+			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
+		} else if (auth.code != 200) {
+			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
+		} else if (auth.decoded.role !== 'super') {
+			res.json({status: {success: false, code: 403}, message: 'Tidak dapat akses fungsi!'})
+		} else {
+			Users
+				.findByPk(id)
+				.then(function(users) {
+					if (users ==  null) {
+						res.json({status: {success: false, code: 404}, message: 'User tidak ditemukan!'})
+					} else {
+						Users
+							.destroy({
+								where: {
+									id: id
+								}
+							})
+							.then(function(users) {
+								res.json({status: {success: true, code: 200}, message: 'Hapus user berhasil!'})
+							})
+							.catch(function(err) {
+								res.json({status: {success: false, code: 500}, message: 'Hapus user gagal!', err: err})
+							})
+					}
+				})
+				.catch(function(err) {
+					res.json({status: {success: false, code: 500}, message: 'User gagal ditemukan!', err: err})
+				})
+		}
 	}
 
 	this.forgotPassword = function(req, res) {
-		let username = req.body.username,
-			email = req.body.email
+		let email = req.body.email
 
 		if (username == null && email == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
@@ -239,14 +282,14 @@ function UsersControllers() {
 			Users
 				.findOne({
 					where: {
-						[Op.or]: [{username: username}, {email: email}]
+						email: email
 					}
 				})
 				.then(function(users) {
 					if (users == null) {
 						res.json({status: {success: false, code: 404}, message: 'User tidak ditemukan!'})
 					} else {
-						
+						res.json()
 					}
 				})
 		}

@@ -78,7 +78,7 @@ function MailerControllers() {
 	}
 
 	this.broadcastToSubscribers = function(req, res) {
-
+		
 	}
 }
 

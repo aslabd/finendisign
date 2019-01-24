@@ -29,6 +29,35 @@ function ImagesControllers() {
 				res.json({status: {success: false, code: 500}, message: 'Ambil image gagal!', err: err})
 			})
 	}
+
+	this.get = function(req, res) {
+		let id = req.params.id
+
+		Images
+			.findByPk(id)
+			.then(function(images) {
+				if (images == null) {
+					res.json({status: {success: false, code: 404}, message: 'Image tidak ditemukan!'})
+				} else {
+					res.json({status: {success: true, code: 200}, message: 'Ambil image berhasil', data: images})
+				}
+			})
+			.catch(function(err) {
+				res.json({status: {success: false, code: 500}, message: 'Ambil image gagal!', err: err})
+			})
+	}
+
+	this.create = function(req, res) {
+		
+	}
+
+	this.update = function(req, res) {
+
+	}
+
+	this.delete = function(req, res) {
+
+	}
 }
 
 module.exports = new ImagesControllers();
