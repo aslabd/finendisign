@@ -13,5 +13,5 @@ module.exports = new Sequelize(commonConfiguration.database.name, commonConfigur
         acquire: 30000,
         idle: 10000
     },
-    operatorAliases: false
+    operatorsAliases: commonConfiguration.database.operatorAliases
 });

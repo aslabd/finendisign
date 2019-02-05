@@ -10,11 +10,12 @@ module.exports = {
 		username: 'root',
 		password: '',
 		host: 'localhost',
-		type: 'mysql'
+		type: 'mysql',
+		operatorsAliases: false
 	},
 	contactMe: {
 		email: {
-			address: 'admin@finendisign.com',
+			address: 'guest@finendisign.com',
 			password: 'passwordnyapahayooo'
 		}
 	},
@@ -24,5 +25,5 @@ module.exports = {
 		phoneNumber: /([+][0-9]{12,15})|([0-9]{10,13})/,
 		password: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.{6,}).*$/
 	},
-	auth: true
+	auth: false
 }
