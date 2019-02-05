@@ -13,4 +13,20 @@ router.get('/get/all', function(req, res) {
 	configurations.getAll(req, res)
 });
 
+router.get('/get/:id', function(req, res) {
+	configurations.get(req, res)
+});
+
+router.post('/create', function(req, res) {
+	configurations.create(req, res)
+});
+
+router.patch('/update', function(req, res) {
+	configurations.update(req, res)
+});
+
+router.delete('/delete', function(req, res) {
+	configurations.delete(req, res)
+});
+
 module.exports = router;

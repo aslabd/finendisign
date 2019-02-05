@@ -35,7 +35,7 @@ router.post('/create', function(req, res) {
 });
 
 router.patch('/update', function(req, res) {
-	posts.create(req, res)
+	posts.update(req, res)
 });
 
 router.delete('/delete', function(req, res) {

@@ -104,15 +104,15 @@ function ConfigurationsControllers() {
 								}
 							})
 							.then(function(configurations) {
-
+								res.json({status: {success: true, code: 200}, message: 'Update configuration berhasil!'})
 							})
 							.catch(function(err) {
-
+								res.json({status: {success: false, code: 500}, message: 'Update configuration gagal!', err: err});
 							})
 					}
 				})
 				.catch(function(err) {
-
+					res.json({status: {success: false, code: 500}, message: 'Ambil configuration gagal!', err: err});
 				})
 		}
 	}
@@ -138,15 +138,15 @@ function ConfigurationsControllers() {
 								}
 							})
 							.then(function(configurations) {
-
+								res.json({status: {success: true, code: 200}, message: 'Hapus configuration berhasil!'})
 							})
 							.catch(function(err) {
-								
+								res.json({status: {success: false, code: 500}, message: 'Hapus configuration gagal!', err: err});
 							})
 					}
 				})
 				.catch(function(err) {
-
+					res.json({status: {success: false, code: 500}, message: 'Ambil configuration gagal!', err: err});
 				})
 		}
 	}
