@@ -6,10 +6,11 @@ module.exports = {
 		key: 'IniAdalahKeyTeramanDiDunia'
 	},
 	database: {
-		name: 'finendisign',
-		username: 'root',
-		password: '',
-		host: 'localhost',
+		name: 'finendis_web',
+		user: 'username',
+		password: 'password',
+		host: '178.128.212.214',
+		port:3306,
 		type: 'mysql',
 		operatorsAliases: false
 	},
@@ -17,6 +18,11 @@ module.exports = {
 		email: {
 			address: 'guest@finendisign.com',
 			password: 'passwordnyapahayooo'
+		}
+	},
+	forgotPassword: {
+		email: {
+			address: ''
 		}
 	},
 	regex: {
