@@ -8,9 +8,9 @@ var Utils = require(path.join(__dirname, '/utils'));
 function MailerControllers() {
 	this.transporter = function() {
 		return nodemailer.createTransport({
-		    host: "smtp.ethereal.email",
-		    port: 587,
-		    secure: false, // true for 465, false for other ports
+		    host: commonConfiguration.contactMe.email.host,
+		    port: commonConfiguration.contactMe.email.port,
+		    secure: commonConfiguration.contactMe.email.secure,
 		    auth: {
 		    	user: commonConfiguration.contactMe.email.address, // generated ethereal user
 		    	pass: commonConfiguration.contactMe.email.password // generated ethereal password
@@ -51,8 +51,6 @@ function MailerControllers() {
 
 		if (subject == null || firstname == null || email == null || message == null) {
 			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
-		} else if (!Utils.isEmail(email)) {
-			res.json({status: {success: false, code: 400}, message: 'Format email salah.'})
 		} else {
 			let options = {
 				from: {
@@ -64,7 +62,7 @@ function MailerControllers() {
 				html: null
 			}
 
-			let emailInfo = setOptions(options)
+			let emailInfo = this.setOptions(options)
 
 			(async function() {
 				try {

@@ -6,17 +6,20 @@ module.exports = {
 		key: 'IniAdalahKeyTeramanDiDunia'
 	},
 	database: {
-		name: 'finendisign',
-		username: 'root',
-		password: '',
+		name: 'finendis_web',
+		username: 'username',
+		password: 'password',
 		host: 'localhost',
 		type: 'mysql',
 		operatorsAliases: false
 	},
 	contactMe: {
 		email: {
-			address: 'guest@finendisign.com',
-			password: 'passwordnyapahayooo'
+			address: 'contact@finendisign.com',
+			password: 'finendifinendi',
+			host: "mail.finendisign.com",
+			secure: true,
+			port: 465
 		}
 	},
 	regex: {
@@ -25,5 +28,5 @@ module.exports = {
 		phoneNumber: /([+][0-9]{12,15})|([0-9]{10,13})/,
 		password: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.{6,}).*$/
 	},
-	auth: false
+	auth: true
 }
