@@ -42,4 +42,4 @@ function AuthControllers() {
 	}
 }
 
-module.exports = new AuthControllers()
+module.exports = new AuthControllers();

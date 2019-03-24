@@ -7,22 +7,27 @@ module.exports = {
 	},
 	database: {
 		name: 'finendis_web',
-		user: 'username',
+		username: 'username',
 		password: 'password',
 		host: '178.128.212.214',
-		port:3306,
+		port: 3306,
 		type: 'mysql',
 		operatorsAliases: false
 	},
 	contactMe: {
-		email: {
-			address: 'guest@finendisign.com',
-			password: 'passwordnyapahayooo'
-		}
-	},
-	forgotPassword: {
-		email: {
-			address: ''
+		sender: {
+			email: {
+				address: 'contact@finendisign.com',
+				password: 'finendifinendi',
+				host: 'mail.finendisign.com',
+				secure: true,
+				port: 465
+			}
+		},
+		receiver: {
+			email: {
+				address: 'finendi@finendisign.com'
+			}
 		}
 	},
 	regex: {
@@ -31,5 +36,5 @@ module.exports = {
 		phoneNumber: /([+][0-9]{12,15})|([0-9]{10,13})/,
 		password: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.{6,}).*$/
 	},
-	auth: false
+	auth: true
 }

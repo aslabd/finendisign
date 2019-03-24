@@ -1,27 +1,27 @@
-var path = require('path')
+var path = require('path');
 
 var commonConfiguration = require(path.join(__dirname, '/../configuration/common'));
 
 function UtilsControllers() {
 	// Validator
 	this.regexValidator = function(regex, test) {
-		return test.match(regex)
+		return test.match(regex);
 	}
 
 	this.isEmail = function(email) {
-		return regexValidator(commonConfiguration.regex.email, email);
+		return this.regexValidator(commonConfiguration.regex.email, email);
 	}
 
 	this.isPhoneNumber = function(phoneNumber) {
-		return regexValidator(commonConfiguration.regex.phoneNumber, phoneNumber);
+		return this.regexValidator(commonConfiguration.regex.phoneNumber, phoneNumber);
 	}
 
 	this.isImageURL = function(imageURL) {
-		return regexValidator(commonConfiguration.regex.imageURL, imageURL);
+		return this.regexValidator(commonConfiguration.regex.imageURL, imageURL);
 	}
 
 	this.isPassword = function(password) {
-		return regexValidator(commonConfiguration.regex.password, password)
+		return this.regexValidator(commonConfiguration.regex.password, password);
 	}
 
 	this.deleteValueFromArrayString = function(array) {

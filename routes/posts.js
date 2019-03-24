@@ -17,8 +17,12 @@ router.get('/get/category/:categoryId/:options', function(req, res) {
 	posts.getAllByCategoryId(req, res)
 });
 
-router.get('/get/:id', function(req, res) {
-	posts.get(req, res)
+router.get('/count/:id/next', function(req, res) {
+	posts.isLastNextSameCategoryId(req, res)
+});
+
+router.get('/count/:id/previous', function(req, res) {
+	posts.isLastPreviousSameCategoryId(req, res)
 });
 
 router.get('/get/:id/next', function(req, res) {
@@ -27,6 +31,10 @@ router.get('/get/:id/next', function(req, res) {
 
 router.get('/get/:id/previous', function(req, res) {
 	posts.getPreviousSameCategoryId(req, res)
+});
+
+router.get('/get/:id', function(req, res) {
+	posts.get(req, res)
 });
 
 /* POST users */

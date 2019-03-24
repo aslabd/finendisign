@@ -1,7 +1,7 @@
 var express = require('express'),
 	crypto = require('crypto'),
 	path = require('path'),
-	escape = require('escape-html')
+	escapeHTML = require('escape-html')
 
 var sequelize = require(path.join(__dirname, '/../configuration/database'));
 var Op = sequelize.Op
@@ -168,6 +168,114 @@ function PostsControllers() {
 			})
 	}
 
+	this.isLastNextSameCategoryId = async function(req, res) {
+		let id = req.params.id
+
+		let status
+		
+		let auth = await Auth.auth(req)
+		if (auth.code != 200) {
+			status = [true]
+		} else {
+			status = [true, false]
+		}
+
+		if (id == null) {
+			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
+		} else {
+			Posts
+				.findByPk(id, {
+					where: {
+						status: {
+							[Op.or]: status
+						}
+					},
+					attributes: [
+						'categoryId'
+					]
+				})
+				.then(function(posts) {
+					if (posts == null) {
+						res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
+					} else {
+						Posts
+							.count({
+								where: {
+									id: {
+										[Op.gt]: id,
+									},
+									status: true,
+									categoryId: posts.categoryId
+								}
+							})
+							.then(function(count) {
+								res.json({status: {success: true, code: 200}, message: 'Ambil count post selanjutnya berhasil!', data: count})
+							})
+							.catch(function(err) {
+								res.json({status: {success: false, code: 500}, message: 'Ambil count post selanjutnya gagal!', err: err})
+							});
+					}
+				})
+				.catch(function(err) {
+					res.json({status: {success: false, code: 500}, message: 'Ambil post gagal!', err: err})
+				})
+		}
+	}
+
+	this.isLastPreviousSameCategoryId = async function(req, res) {
+		let id = req.params.id
+
+		let status
+		
+		let auth = await Auth.auth(req)
+		if (auth.code != 200) {
+			status = [true]
+		} else {
+			status = [true, false]
+		}
+
+		if (id == null) {
+			res.json({status: {success: false, code: 400}, message: 'Ada parameter yang kosong!'})
+		} else {
+			Posts
+				.findByPk(id, {
+					where: {
+						status: {
+							[Op.or]: status
+						}
+					},
+					attributes: [
+						'categoryId'
+					]
+				})
+				.then(function(posts) {
+					if (posts == null) {
+						res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
+					} else {
+						Posts
+							.count({
+								where: {
+									id: {
+										[Op.lt]: id,
+									},
+									status: true,
+									categoryId: posts.categoryId
+								}
+							})
+							.then(function(count) {
+								res.json({status: {success: true, code: 200}, message: 'Ambil count post sebelumnya berhasil!', data: count})
+							})
+							.catch(function(err) {
+								res.json({status: {success: false, code: 500}, message: 'Ambil count post sebelumnya gagal!', err: err})
+							});
+					}
+				})
+				.catch(function(err) {
+					res.json({status: {success: false, code: 500}, message: 'Ambil post gagal!', err: err})
+				})
+		}
+	}
+
 	this.getNextSameCategoryId = async function(req, res) {
 		let id = req.params.id
 
@@ -209,37 +317,41 @@ function PostsControllers() {
 								}
 							})
 							.then(function(min) {
-								Posts
-									.findByPk(min, {
-										where: {
-											status: true,
-										},
-										include: [{
-											model: Users,
-											as: 'author',
-											attributes: ['username', 'name', 'email']
-										}, {
-											model: Images,
-											attributes: ['url', 'isThumbnail']
-										}, {
-											model: Categories,
-											as: 'category',
-											attributes: ['name']
-										}]
-									})
-									.then(function(posts) {
-										if (posts == null) {
-											res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
-										} else {
-											res.json({status: {success: true, code: 200}, message: 'Ambil post setelahnya berhasil!', data: posts})
-										}
-									})
-									.catch(function(err) {
-										res.json({status: {success: false, code: 500}, message: 'Ambil post gagal!', err: err})
-									})
+								if (isNaN(min)) {
+									res.json({status: {success: false, code: 404}, message: 'Post selanjutnya tidak ditemukan!'})
+								} else {
+									Posts
+										.findByPk(min, {
+											where: {
+												status: true,
+											},
+											include: [{
+												model: Users,
+												as: 'author',
+												attributes: ['username', 'name', 'email']
+											}, {
+												model: Images,
+												attributes: ['url', 'isThumbnail']
+											}, {
+												model: Categories,
+												as: 'category',
+												attributes: ['name']
+											}]
+										})
+										.then(function(posts) {
+											if (posts == null) {
+												res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
+											} else {
+												res.json({status: {success: true, code: 200}, message: 'Ambil post setelahnya berhasil!', data: posts})
+											}
+										})
+										.catch(function(err) {
+											res.json({status: {success: false, code: 500}, message: 'Ambil post gagal!', err: err})
+										})
+								}
 							})
 							.catch(function(err) {
-								res.json({status: {success: false, code: 500}, message: 'Ambil max id post gagal!', err: err})
+								res.json({status: {success: false, code: 500}, message: 'Ambil min id post gagal!', err: err})
 							})
 					}
 				})
@@ -291,34 +403,38 @@ function PostsControllers() {
 								}
 							})
 							.then(function(max) {
-								Posts
-									.findByPk(max, {
-										where: {
-											status: true
-										},
-										include: [{
-											model: Users,
-											as: 'author',
-											attributes: ['username', 'name', 'email']
-										}, {
-											model: Images,
-											attributes: ['url', 'isThumbnail']
-										}, {
-											model: Categories,
-											as: 'category',
-											attributes: ['name']
-										}]
-									})
-									.then(function(posts) {
-										if (posts == null) {
-											res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
-										} else {
-											res.json({status: {success: true, code: 200}, message: 'Ambil post sebelumnya berhasil!', data: posts})
-										}
-									})
-									.catch(function(err) {
-										res.json({status: {success: false, code: 500}, message: 'Ambil post gagal!', err: err})
-									})
+								if (isNaN(max)) {
+									res.json({status: {success: false, code: 404}, message: 'Post selanjutnya tidak ditemukan!'})
+								} else {
+									Posts
+										.findByPk(max, {
+											where: {
+												status: true
+											},
+											include: [{
+												model: Users,
+												as: 'author',
+												attributes: ['username', 'name', 'email']
+											}, {
+												model: Images,
+												attributes: ['url', 'isThumbnail']
+											}, {
+												model: Categories,
+												as: 'category',
+												attributes: ['name']
+											}]
+										})
+										.then(function(posts) {
+											if (posts == null) {
+												res.json({status: {success: false, code: 404}, message: 'Post tidak ditemukan!'})
+											} else {
+												res.json({status: {success: true, code: 200}, message: 'Ambil post sebelumnya berhasil!', data: posts})
+											}
+										})
+										.catch(function(err) {
+											res.json({status: {success: false, code: 500}, message: 'Ambil post gagal!', err: err})
+										})
+								}
 							})
 							.catch(function(err) {
 								res.json({status: {success: false, code: 500}, message: 'Ambil max id post gagal!', err: err})
