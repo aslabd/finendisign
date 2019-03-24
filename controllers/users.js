@@ -149,7 +149,7 @@ function UsersControllers() {
 		} else if (auth.decoded.role != 'super') {
 			res.json({status: {success: false, code: 403}, message: 'Tidak dapat akses fungsi!'})
 		} else {
-			User
+			Users
 				.findAll({
 					where: {
 						[Op.or]: [{username: username}, {email: email}]
@@ -159,7 +159,7 @@ function UsersControllers() {
 					if (user != 0) {
 						res.json({status: {success: false, code: 400}, message: 'Username atau email sudah ada.'})
 					} else {
-						User
+						Users
 							.create({
 								username: username,
 								name: name,
@@ -202,7 +202,7 @@ function UsersControllers() {
 		} else if (auth.code != 200) {
 			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
 		} else {
-			User
+			Users
 				.findAll({
 					where: {
 						id: auth.decoded.id,
@@ -213,7 +213,7 @@ function UsersControllers() {
 					if (user.length != 0) {
 						res.json({status: {success: false, code: 400}, message: 'Username atau email sudah ada.'})
 					} else {
-						User
+						Users
 							.create({
 								username: username,
 								name: name,
