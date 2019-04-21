@@ -630,9 +630,9 @@ function PostsControllers() {
 	}
 
 	this.delete = async function(req, res) {
-		let id = req.body.id
+		let id = req.body.id;
 
-		let auth = await Auth.auth(req)
+		let auth = await Auth.auth(req);
 
 		if (auth.code != 200) {
 			res.json({status: {success: false, code: auth.code}, message: 'Tidak dapat akses fungsi!'})
@@ -662,11 +662,10 @@ function PostsControllers() {
 								}
 							})
 							.then(function(images) {
-								Post
+								Posts
 									.destroy({
 										where: {
-											id: id,
-											authorId: auth.decoded.id
+											id: id
 										}
 									})
 									.then(function(post) {
@@ -677,13 +676,14 @@ function PostsControllers() {
 									})
 							})
 							.catch(function(err) {
-								res.json({status: {success: false, code: 500}, message: 'Hapus image gagal! Hapus post gagal!'})
-							})
+								console.log(err)
+								res.json({status: {success: false, code: 500}, message: 'Hapus image gagal! Hapus post gagal!', err: err})
+							});
 					}
 				})
 				.catch(function(err) {
 					res.json({status: {success: false, code: 500}, message: 'Ambil post gagal!', err: err})
-				})
+				});
 		}
 	}
 }
