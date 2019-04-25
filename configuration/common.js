@@ -5,6 +5,10 @@ module.exports = {
 	jwt: {
 		key: 'IniAdalahKeyTeramanDiDunia'
 	},
+	sslcert: {
+		privatekey: '',
+		certificate: ''
+	},
 	database: {
 		name: 'finendis_web',
 		username: 'username',
