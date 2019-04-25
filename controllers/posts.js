@@ -584,7 +584,7 @@ function PostsControllers() {
 												try {
 													await Images.create({
 														url: images[i].url,
-														postId: posts.id,
+														postId: id,
 														isThumbnail: images[i].isThumbnail
 													})
 												} catch (err) {
@@ -595,15 +595,37 @@ function PostsControllers() {
 											if (i == (images.length)) { 
 												res.json({status: {success: true, code: 200}, message: 'Update post berhasil!', data: posts})
 											} else if (i > 0) {
+												console.log("wew");
 												(async function() {
 													try {
 														await Images.destroy({
 															where: {
-																postId: posts.id
+																postId: id
 															}
 														})
 
-														res.json({status: {success: false, code: 500}, message: 'Update image gagal! Update post gagal!'})
+														await Posts.destroy({
+															where: {
+																id: id
+															}
+														})
+
+														res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Update post gagal!'})
+													} catch (err) {
+														res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Update post gagal!', err: err})
+													}
+												})();
+											} else {
+												console.log("wow");
+												(async function() {
+													try {
+														await Posts.destroy({
+															where: {
+																id: id
+															}
+														})
+
+														res.json({status: {success: false, code: 500}, message: 'Simpan image gagal! Update post gagal!'})
 													} catch (err) {
 														res.json({status: {success: false, code: 500}, message: 'Destroy gagal! Update post gagal!', err: err})
 													}
