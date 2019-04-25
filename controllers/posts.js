@@ -546,9 +546,6 @@ function PostsControllers() {
 		} else {
 			Posts
 				.findByPk(id, {
-					where: {
-						authorId: auth.decoded.id
-					},
 					attributes: [
 						'id',
 						'authorId'
@@ -641,9 +638,6 @@ function PostsControllers() {
 		} else {
 			Posts
 				.findByPk(id, {
-					where: {
-						authorId: auth.decoded.id
-					},
 					attributes: [
 						'id',
 						'authorId'
